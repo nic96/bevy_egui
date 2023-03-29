@@ -13,7 +13,7 @@ use bevy::{
         mouse::{MouseButton, MouseButtonInput, MouseScrollUnit, MouseWheel},
         ButtonState, Input,
     },
-    prelude::{Entity, EventReader, Query, Time},
+    prelude::{info, Entity, EventReader, Query, Time},
     window::{
         CursorEntered, CursorLeft, CursorMoved, ReceivedCharacter, RequestRedraw, WindowCreated,
         WindowFocused,
@@ -92,14 +92,18 @@ pub fn process_input_system(
         };
     }
 
-    let shift = input_resources.keyboard_input.pressed(KeyCode::LShift)
-        || input_resources.keyboard_input.pressed(KeyCode::RShift);
-    let ctrl = input_resources.keyboard_input.pressed(KeyCode::LControl)
-        || input_resources.keyboard_input.pressed(KeyCode::RControl);
-    let alt = input_resources.keyboard_input.pressed(KeyCode::LAlt)
-        || input_resources.keyboard_input.pressed(KeyCode::RAlt);
-    let win = input_resources.keyboard_input.pressed(KeyCode::LWin)
-        || input_resources.keyboard_input.pressed(KeyCode::RWin);
+    let shift = input_resources
+        .keyboard_input
+        .any_pressed([KeyCode::LShift, KeyCode::RShift]);
+    let ctrl = input_resources
+        .keyboard_input
+        .any_pressed([KeyCode::LControl, KeyCode::RControl]);
+    let alt = input_resources
+        .keyboard_input
+        .any_pressed([KeyCode::LAlt, KeyCode::RAlt]);
+    let win = input_resources
+        .keyboard_input
+        .any_pressed([KeyCode::LWin, KeyCode::RWin]);
 
     let mac_cmd = if cfg!(target_os = "macos") {
         win
@@ -125,7 +129,7 @@ pub fn process_input_system(
         .iter()
         .last()
         .map(|event| event.window);
-
+    info!("{:?}", modifiers);
     // When a user releases a mouse button, Safari emits both `CursorLeft` and `CursorEntered`
     // events during the same frame. We don't want to reset mouse position in such a case, otherwise
     // we won't be able to process the mouse button event.
@@ -218,6 +222,7 @@ pub fn process_input_system(
                     .egui_input
                     .events
                     .push(egui::Event::Text(event.char.to_string()));
+                info!("sending text event: {}", event.char.to_string());
             }
         }
     }
@@ -245,6 +250,7 @@ pub fn process_input_system(
                     repeat: false,
                     modifiers,
                 };
+                info!("sending egui event: {:?}", &egui_event);
                 focused_input.events.push(egui_event);
 
                 // We also check that it's an `ButtonState::Pressed` event, as we don't want to
