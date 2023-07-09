@@ -22,7 +22,7 @@ default_fonts = ["egui/default_fonts"]
 serde = ["egui/serde"]
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy.git", branch = "main", default-features = false, features = [
+bevy = { version = "0.11", default-features = false, features = [
     "bevy_render",
     "bevy_asset",
 ] }
